@@ -1,4 +1,4 @@
-# VizFlyt
+# VizFlyt: A Perception-centric Pedagogical Framework For Autonomous Aerial Robots. 
 
 <span style="color:red;">⚠️ This repo is still under construction and not a finished work. It will be updated incrementally over the next few days until finished.</span>
 
