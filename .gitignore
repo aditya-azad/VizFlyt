@@ -1,0 +1,27 @@
+# Ignore all files in a directory
+vizflyt_ws/src/vizflyt_viewer/data/
+vizflyt_ws/src/vizflyt_viewer/outputs/
+vizflyt_ws/src/data_backup/
+vizflyt_ws/src/outputs_backup/
+vizflyt_ws/build/
+vizflyt_ws/install/
+vizflyt_ws/log/
+
+# Ignore specific file types
+*.log
+*.tmp
+*.swp
+
+# Ignore system files
+.DS_Store
+Thumbs.db
+
+# Ignore compiled Python files
+__pycache__/
+*.pyc
+*.pyo
+
+# Ignore environment files
+.env
+venv/
+*.venv
