@@ -18,7 +18,6 @@ class DroneController(Node):
     """
     ROS2-based Autonomous Drone Controller.
     """
-
     def __init__(self):
         super().__init__('drone_control_node')
         

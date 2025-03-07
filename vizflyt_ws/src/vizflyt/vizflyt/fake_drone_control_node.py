@@ -86,6 +86,7 @@ class FakeDroneController(Node):
 
         # Publish velocity command
         twist = Twist()
+        
         if self.planner.mode == "velocity":
             twist.linear.x, twist.linear.y, twist.linear.z, twist.angular.z = cmd
         else:

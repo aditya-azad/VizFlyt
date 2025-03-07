@@ -1,7 +1,6 @@
 #!/bin/bash
 
 # Change Directory to vizflyt_ws
-
 conda activate vizflyt
 colcon build --symlink-install
 source install/setup.bash

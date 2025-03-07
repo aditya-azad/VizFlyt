@@ -7,14 +7,14 @@ import cv2
 import torch
 import sys
 import argparse
-
+import json
 
 import rclpy
 from rclpy.node import Node
 from vicon_receiver.msg import Position 
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
-from geometry_msgs.msg import PoseStamped
+from geometry_msgs.msg import PoseStamped, PointStamped
 from transforms3d.euler import euler2quat
 
 from dataclasses import dataclass, fields
@@ -31,11 +31,7 @@ from nerfstudio.viewer.utils import CameraState, get_camera
 from nerfstudio.utils.decorators import check_main_thread, decorate_all
 from nerfstudio.cameras.cameras import CameraType
 
-import tyro
-
 from vizflyt.utils import quaternion_to_euler, rotation_matrix_from_euler, quaternion_multiply, euler_to_quaternion
-
-import json
 
 
 @dataclass
@@ -79,22 +75,28 @@ class RenderViews(Node):
             self.setup_output_directories()
         
         self.image_id = 0
-        
-        # set origin as where you start
-        self.origin_pose = np.array([None,None,None,None,None,None])
-        
-        # subscribe to the fake vicon node {The message type entirely depends on the localization module you have}
+
+        # cv bridge for publishing images
+        self.bridge = CvBridge()
+
+        # subscriber to the fake vicon node {The message type entirely depends on the localization module you have}
         self.subscription = self.create_subscription(Position, '/vicon/VizFlyt/VizFlyt', self.pose_callback, 10)
         
-        # ROS2 image publishers
-        self.bridge = CvBridge()
-        self.rgb_publisher = self.create_publisher(Image, "/vizflyt/rgb_image", 10)
-        self.depth_publisher = self.create_publisher(Image, "/vizflyt/depth_image", 10)
-        self.pose_publisher = self.create_publisher(PoseStamped, "/vizflyt/drone_pose_NED", 10)
+        # publishers (rgb, depth, drone_pose, drone location in GSplat)
+        self.rgb_publisher            = self.create_publisher(Image, "/vizflyt/rgb_image", 10)
+        self.depth_publisher          = self.create_publisher(Image, "/vizflyt/depth_image", 10)
+        self.pose_publisher           = self.create_publisher(PoseStamped, "/vizflyt/drone_pose_NED", 10)
+        self.drone_location_publisher = self.create_publisher(PointStamped, "/vizflyt/drone_location", 10)
+
+        # set origin is where you start in the environment; current keeps updating
+        self.origin_pose = None
+        self.current_pose = None
+        
+        # define a timer for render rate control
+        self.render_timer = self.create_timer(0.033, self.timer_callback)
     
         self.get_logger().info("Custom Viewer Node Initialized")
 
-    
     #########################
     # GENERAL UTILS METHODS
     #########################
@@ -102,9 +104,9 @@ class RenderViews(Node):
         """
         Loads camera settings from a json config file
         """
-        
         try:
             
+            # extract camera data from the json file
             with open(json_path, 'r') as f:
                 camera_data = json.load(f)
         
@@ -132,7 +134,7 @@ class RenderViews(Node):
             
         except Exception as e:
             
-            print(f"Error loading camera settings {e}")
+            print(f"Error loading camera settings {e}, setting default values")
             
             self.scale_ratio = 1
             self.max_res = 640
@@ -149,8 +151,7 @@ class RenderViews(Node):
             self.cx = self.image_width / 2
             self.cy = self.image_height / 2
             
-                    
-        
+
     def setup_output_directories(self):
         """
         Creates directories for saving images, only if saving is enabled.
@@ -174,54 +175,64 @@ class RenderViews(Node):
 
         print(f'Created new output directory: {self.output_directory}')
     
-       
+    
+    def timer_callback(self):
+        """
+        Publishes rgb, depth, drone position in real world and drone_location in digital twin
+        """
+        
+        if self.current_pose is None:
+            return
+        
+        if self.current_pose is not None:
+            
+            # set origin pose if not already set
+            if self.origin_pose is None:
+                self.origin_pose = self.current_pose
+            
+            # convert from NWU to NED
+            current_position_ned, current_orientation_ned = self.convert_to_ned(self.current_pose, self.origin_pose)
+
+            # Render Images from the Splat        
+            current_camera_state, current_rgb, current_depth = self.get_images(current_position_ned, current_orientation_ned)
+            
+            # prevent publishing empty message
+            if current_rgb is None or current_depth is None:
+                return
+            
+            # get timestamp
+            current_time = self.get_clock().now().to_msg()
+
+            # publish images and poses to topics
+            self.publish_images(current_rgb, current_depth, current_time)
+            self.publish_drone_pose(current_position_ned, current_orientation_ned, current_time)
+            self.publish_drone_location(current_camera_state, current_time)
+            
+            # Saving images locally
+            if self.save_images_to_disk:     
+                cv2.imwrite(os.path.join(self.rgb_directory, f"{self.image_id:04d}.png"), current_rgb)
+                cv2.imwrite(os.path.join(self.depth_directory, f"{self.image_id:04d}.png"), current_depth)
+                self.image_id += 1
+        
     def pose_callback(self, msg: Position):
         """
         Receives Vicon pose data, processes it, and saves an image.
         """
-        
         # extract info from the fake node
         x, y, z = msg.x_trans, msg.y_trans, msg.z_trans
         x_quat, y_quat, z_quat, w_quat = msg.x_rot, msg.y_rot, msg.z_rot, msg.w
         
         # convert it into euler angles
         roll, pitch, yaw = quaternion_to_euler(x_quat, y_quat, z_quat, w_quat)
-        current_pose = np.array([x, y, z, roll, pitch, yaw])
+        self.current_pose = np.array([x, y, z, roll, pitch, yaw])
         
-        # set origin pose if not already set
-        if np.all(self.origin_pose == None):
-            self.origin_pose = current_pose
         
-        # convert from NWU to NED
-        current_position_ned, current_orientation_ned = self.convert_to_ned(current_pose, self.origin_pose)
-
-        # Render Images from the Splat        
-        current_rgb, current_depth = self.get_images(current_position_ned, current_orientation_ned)
-
-        # get timestamp
-        current_time = self.get_clock().now().to_msg()
-
-        # publish images and poses to topics
-        self.publish_images(current_rgb, current_depth, current_time)
-        self.publish_drone_pose(current_position_ned, current_orientation_ned, current_time)
-        
-        # Saving images locally
-        if self.save_images_to_disk:     
-            cv2.imwrite(os.path.join(self.rgb_directory, f"{self.image_id:04d}.png"), current_rgb)
-            cv2.imwrite(os.path.join(self.depth_directory, f"{self.image_id:04d}.png"), current_depth)
-        
-        # Updating index for next iteration of the loop
-        self.image_id += 1
-        
-        # Loop rate of saving images
-        time.sleep(0.01)
-
- 
     def publish_images(self, rgb_image, depth_image, timestamp):
-        """Publishes RGB and Depth images as ROS2 Image messages.
-        # TODO: Currently these give out only RGB and Depth Images; 
-        #       Modify this to publish desired type (eg. Events feed, stereo feed, etc.) 
-                For EventSim: 
+        """
+        Publishes RGB and Depth images as ROS2 Image messages. 
+        
+        TODO: Currently these give out only RGB and Depth Images; 
+              Modify this to publish desired type (eg. Events feed, stereo feed, etc.) 
         """
         rgb_msg = self.bridge.cv2_to_imgmsg(rgb_image, encoding="rgb8") 
 
@@ -272,20 +283,34 @@ class RenderViews(Node):
 
         # Publish pose
         self.pose_publisher.publish(pose_msg)
+        
+    def publish_drone_location(self, camera_state, timestamp):
+        """
+        publishes camera to world transform from nerfstudio for collision detection node
+        """        
+        location_msg = PointStamped()
+        location_msg.header.stamp = timestamp
+        
+        c2w = camera_state.c2w
+        location_msg.point.x = c2w[0,3].item()
+        location_msg.point.y = c2w[1,3].item()
+        location_msg.point.z = c2w[2,3].item()
+        
+        self.drone_location_publisher.publish(location_msg)
+                    
     
     def convert_to_ned(self, current_pose, origin_pose):
         """
         convert from NWU to NED frame 
         """    
-        x =  (current_pose[0] - origin_pose[0]) # * 0.001   
-        y = -(current_pose[1] - origin_pose[1]) # * 0.001 
-        z = -(current_pose[2] - origin_pose[2]) # * 0.001
+        x =  (current_pose[0] - origin_pose[0])    
+        y = -(current_pose[1] - origin_pose[1])  
+        z = -(current_pose[2] - origin_pose[2]) 
         roll = current_pose[3] - origin_pose[3]  
         pitch = -(current_pose[4] - origin_pose[4])  
         yaw = -(current_pose[5] - origin_pose[5])
         
         # Reason for current_pose - origin_pose -> To always initialize the drone from origin position and orientation
-        # multiplied by 0.001 because vicon pose localization is given in 0.001  
         
         return np.array([x,y,z]), np.array([roll, pitch, yaw])
 
@@ -341,8 +366,11 @@ class RenderViews(Node):
     # EXECUTION FUNCTIONS
     #######################        
     def get_images(self, current_local_position_ned, current_local_orientation_ned):
-        
-        # Computing position update within splat for drone control {NOTE: This is the current position the drone. Called update because we'll add it to the Origin Position}
+        """
+        Given Position and Orientation, return RGBD Images
+        """
+        # Computing position update within splat for drone control 
+        # {NOTE: This is the current position the drone; called update because we'll add it to the Origin Position}
         position_update_cam = self.init_orientation @ np.array([[current_local_position_ned[1]],
                                                                 [-current_local_position_ned[2]],
                                                                 [-current_local_position_ned[0]]])
@@ -365,31 +393,26 @@ class RenderViews(Node):
         outputs = self._render_img(camera_state)
         current_rgb, current_depth = self.current_images(outputs)
         
-        return current_rgb, current_depth 
-        
+        return camera_state, current_rgb, current_depth 
+    
 def parse_args():
     """
     Parses command-line arguments for configuration path and aspect ratio.
     """
     parser = argparse.ArgumentParser(description="Render images from NeRFStudio and publish to ROS2 topics.")
 
-    DEFAULT_CONFIG_PATH = "/home/pear_group/VizFlyt-devel/vizflyt_ws/src/outputs/washburn-env6-itr0-1fps/washburn-env6-itr0-1fps_nf_format/splatfacto/2025-02-20_200046/config.yml"
-    DEFAULT_JSON_PATH = "/home/pear_group/VizFlyt-devel/vizflyt_viewer/render_config.json"
-    DEFAULT_ASPECT_RATIO = 16/9
-
     parser.add_argument(
-        "--config", type=str, default=DEFAULT_CONFIG_PATH, help="Path to config.yml (default: %(default)s)"
+        "--config", type=str, default="vizflyt_viewer/outputs/washburn-env6-itr0-1fps/washburn-env6-itr0-1fps_nf_format/splatfacto/2025-03-06_201843/config.yml", help="Path to config.yml (default: %(default)s)"
     )
     parser.add_argument(
-        "--json", type=str, default=DEFAULT_JSON_PATH, help="Path to render_config.json (default: %(default)s)"
+        "--json", type=str, default="vizflyt_viewer/render_config.json", help="Path to render_config.json (default: %(default)s)"
     )
     parser.add_argument(
-        "--aspect-ratio", type=float, default=DEFAULT_ASPECT_RATIO, help="Aspect ratio (default: 16:9)"
+        "--aspect-ratio", type=float, default=4/3, help="Aspect ratio (default: 4:3)"
     )
     parser.add_argument(
         "--save", action="store_true", help="Enable saving images to disk. If not set, images will only be published to ROS2."
     )
-
     args = parser.parse_args()
 
     return Path(args.config), Path(args.json), args.save, args.aspect_ratio
@@ -397,15 +420,13 @@ def parse_args():
 def main():
     
     rclpy.init()
-
     config_path, json_path, save_images, aspect_ratio = parse_args()
-
     config, pipeline, _, _ = eval_setup(config_path, eval_num_rays_per_chunk=None, test_mode="test")
-    viewer_node = RenderViews(config, pipeline, save_images, json_path, aspect_ratio)
-    rclpy.spin(viewer_node)
-    viewer_node.destroy_node()
+    render_node = RenderViews(config, pipeline, save_images, json_path, aspect_ratio)
+    rclpy.spin(render_node)
+    render_node.destroy_node()
     rclpy.shutdown()    
     
-    
+
 if __name__ == "__main__":
     main()
