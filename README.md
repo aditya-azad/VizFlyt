@@ -114,24 +114,26 @@ By leveraging pose from an external localization system, VizFlyt hallucinates on
 - Preparing your Environment {Digital Twin Generation using Nerfstudio}
 
   ```bash
-  cd vizflyt_ws/src/vizflyt_viewer/
+  cd vizflyt_ws/src/
 
   # Training your Environment 
-  python scripts/train.py splatfacto --data ./data/washburn-env6-itr0-1fps_nf_format/ --output-dir outputs/washburn-env6-itr0-1fps
+  python vizflyt_viewer/scripts/train.py splatfacto --data ./vizflyt_viewer/data/washburn-env6-itr0-1fps_nf_format/ --output-dir vizflyt_viewer/outputs/washburn-env6-itr0-1fps
   
   # Viewing your Environment
-  python scripts/run_viewer.py --load-config ./outputs/washburn-env6-itr0-1fps/washburn-env6-itr0-1fps_nf_format/splatfacto/2025-03-06_032319/config.yml
+  python vizflyt_viewer/scripts/run_viewer.py --load-config ./vizflyt_viewer/outputs/washburn-env6-itr0-1fps/washburn-env6-itr0-1fps_nf_format/splatfacto/2025-03-06_032319/config.yml
+
+  # Exporting the Occupancy Grid Map for Collision Detection.
+  python vizflyt_viewer/scripts/exporter.py gaussian-splat --load-config ./vizflyt_viewer/outputs/washburn-env6-itr0-1fps/washburn-env6-itr0-1fps_nf_format/splatfacto/2025-03-06_201843/config.yml --output-dir ./vizflyt_viewer/occupancy_grid/ 
   ```
 
 - Setting Initial Pose and Camera Settings and Render Settings using GUI
 
-
   - Open the Viewer using, 
 
   ```bash
-  cd vizflyt_ws/src/vizflyt_viewer/
+  cd vizflyt_ws/src/
 
-  python scripts/run_viewer.py --load-config ./outputs/washburn-env6-itr0-1fps/washburn-env6-itr0-1fps_nf_format/splatfacto/2025-03-06_032319/config.yml
+  python vizflyt_viewer/scripts/run_viewer.py --load-config ./vizflyt_viewer/outputs/washburn-env6-itr0-1fps/washburn-env6-itr0-1fps_nf_format/splatfacto/2025-03-06_032319/config.yml
   ```
   
   - and set the following: 

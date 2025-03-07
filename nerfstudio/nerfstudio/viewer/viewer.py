@@ -17,6 +17,7 @@
 from __future__ import annotations
 
 import json
+import os
 import csv
 import contextlib
 import threading
@@ -322,8 +323,10 @@ class Viewer:
             
         # Determine format
         file_format = "json"
-        file_path = f"render_config.{file_format}"
-
+        folder_path = "vizflyt_viewer/render_settings"
+        file_path = f"{folder_path}/render_config.{file_format}"
+        os.makedirs(folder_path, exist_ok=True)
+        
         if file_format == "json":
             with open(file_path, "w") as f:
                 json.dump(camera_data, f, indent=4)

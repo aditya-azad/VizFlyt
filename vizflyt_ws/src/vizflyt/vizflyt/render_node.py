@@ -15,6 +15,7 @@ from vicon_receiver.msg import Position
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
 from geometry_msgs.msg import PoseStamped, PointStamped
+from std_srvs.srv import Trigger
 from transforms3d.euler import euler2quat
 
 from dataclasses import dataclass, fields
@@ -75,6 +76,7 @@ class RenderViews(Node):
             self.setup_output_directories()
         
         self.image_id = 0
+        self.render   = True # flag to control rendering   
 
         # cv bridge for publishing images
         self.bridge = CvBridge()
@@ -85,8 +87,11 @@ class RenderViews(Node):
         # publishers (rgb, depth, drone_pose, drone location in GSplat)
         self.rgb_publisher            = self.create_publisher(Image, "/vizflyt/rgb_image", 10)
         self.depth_publisher          = self.create_publisher(Image, "/vizflyt/depth_image", 10)
-        self.pose_publisher           = self.create_publisher(PoseStamped, "/vizflyt/drone_pose_NED", 10)
-        self.drone_location_publisher = self.create_publisher(PointStamped, "/vizflyt/drone_location", 10)
+        self.drone_pose_publisher     = self.create_publisher(PoseStamped, "/vizflyt/drone_pose_NED", 10)
+        self.splat_cam_publisher      = self.create_publisher(PointStamped, "/vizflyt/splat_cam_location", 10)
+
+        # service (to stop rendering when the drone crashes inside the Digital Twin)
+        self.stop_render_service = self.create_service(Trigger, "/vizflyt/stop_render", self.stop_render_callback)
 
         # set origin is where you start in the environment; current keeps updating
         self.origin_pose = None
@@ -175,11 +180,25 @@ class RenderViews(Node):
 
         print(f'Created new output directory: {self.output_directory}')
     
+    def stop_render_callback(self, request, response):
+        """
+        Service callback to stop rendering
+        """
+        self.get_logger().warn("Stop Rendering Service called. Stopping Rendering...")
+        self.render = False
+        response.success = True
+        response.message = "Rendering has been stopped!"
+        
+        return response
+    
     
     def timer_callback(self):
         """
         Publishes rgb, depth, drone position in real world and drone_location in digital twin
         """
+        
+        if not self.render:
+            return 
         
         if self.current_pose is None:
             return
@@ -206,7 +225,7 @@ class RenderViews(Node):
             # publish images and poses to topics
             self.publish_images(current_rgb, current_depth, current_time)
             self.publish_drone_pose(current_position_ned, current_orientation_ned, current_time)
-            self.publish_drone_location(current_camera_state, current_time)
+            self.publish_splatcam_location(current_camera_state, current_time)
             
             # Saving images locally
             if self.save_images_to_disk:     
@@ -282,9 +301,9 @@ class RenderViews(Node):
         pose_msg.pose.orientation.w = quat[0]
 
         # Publish pose
-        self.pose_publisher.publish(pose_msg)
+        self.drone_pose_publisher.publish(pose_msg)
         
-    def publish_drone_location(self, camera_state, timestamp):
+    def publish_splatcam_location(self, camera_state, timestamp):
         """
         publishes camera to world transform from nerfstudio for collision detection node
         """        
@@ -296,7 +315,7 @@ class RenderViews(Node):
         location_msg.point.y = c2w[1,3].item()
         location_msg.point.z = c2w[2,3].item()
         
-        self.drone_location_publisher.publish(location_msg)
+        self.splat_cam_publisher.publish(location_msg)
                     
     
     def convert_to_ned(self, current_pose, origin_pose):
@@ -405,7 +424,7 @@ def parse_args():
         "--config", type=str, default="vizflyt_viewer/outputs/washburn-env6-itr0-1fps/washburn-env6-itr0-1fps_nf_format/splatfacto/2025-03-06_201843/config.yml", help="Path to config.yml (default: %(default)s)"
     )
     parser.add_argument(
-        "--json", type=str, default="vizflyt_viewer/render_config.json", help="Path to render_config.json (default: %(default)s)"
+        "--json", type=str, default="vizflyt_viewer/render_settings/render_config.json", help="Path to render_config.json (default: %(default)s)"
     )
     parser.add_argument(
         "--aspect-ratio", type=float, default=4/3, help="Aspect ratio (default: 4:3)"
