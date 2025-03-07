@@ -31,9 +31,8 @@
 <div align="center">
 
 [Quickstart](#quickstart) ·
-[Learn more](#learn-more) ·
 [Planned Features](#planned-featurestodos) ·
-[Project page](https://research.zenseact.com/publications/neurad/)
+[Project page](https://pear.wpi.edu/research/vizflyt.html)
 
 </div>
 
