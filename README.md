@@ -1,7 +1,54 @@
-# VizFlyt: A Perception-centric Pedagogical Framework For Autonomous Aerial Robots. 
-
 <span style="color:red;">⚠️ This repo is still under construction and not a finished work. It will be updated incrementally over the next few days until finished.</span>
 
+
+<p align="center">
+    <!-- project badges -->
+    <a href="https://pear.wpi.edu/research/vizflyt.html"><img src="https://img.shields.io/badge/Project-Page-ffa"/></a>
+    <!-- paper badges -->
+    <a href="ARXIV_PAPER_URL">
+        <img src='https://img.shields.io/badge/arXiv-Page-aff'>
+    </a>
+</p>
+
+
+<div align="center">
+<!-- <h1 style="font-size:2.0em;">VizFlyt</h3> -->
+<picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/photos/vizflyt_logo.png" />
+    <img alt="YOUR_PROJECT_NAME logo" src="assets/photos/vizflyt_logo.png" width="80%"/>
+</picture>
+<picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/photos/banner_image_vizflyt.png" />
+    <img alt="YOUR_PROJECT_NAME logo" src="assets/photos/vizflyt_logo.png" width="80%"/>
+</picture>
+</div>
+
+
+<div align="center">
+<h3 style="font-size:2.0em;">A Perception Centric Pedagogical Framework for Autonomous Aerial Robots</h3>
+<h4>Accepted for ICRA 2025</h4>
+</div>
+<div align="center">
+
+[Quickstart](#quickstart) ·
+[Learn more](#learn-more) ·
+[Planned Features](#planned-featurestodos) ·
+[Project page](https://research.zenseact.com/publications/neurad/)
+
+</div>
+
+# About
+
+Autonomous aerial robots are rapidly becoming integral to various industries, necessitating hands-on aerial robotics courses to equip the next-generation workforce with practical expertise. A robust and efficient course framework requires a reliable testbed that ensures realistic testing without hardware risks.
+
+VizFlyt is an open-source perception-centric Hardware-In-The-Loop (HITL) photorealistic testing framework designed to address this need. By leveraging pose from an external localization system, VizFlyt generates real-time, photorealistic visual sensor data using 3D Gaussian Splatting, enabling stress-free validation of autonomy algorithms on aerial robots without the risk of crashes. The system achieves an update rate of over 100Hz, ensuring high-fidelity real-time performance.
+
+Beyond just a framework, VizFlyt introduces a new open-source and open-hardware curriculum, shaping the future of hands-on aerial robotics education. We have validated VizFlyt across multiple real-world HITL experiments, demonstrating its effectiveness and vast potential for research and education.
+
+💡 Want to contribute? Whether you're developing new autonomy algorithms, integrating additional sensors, or creating novel datasets, VizFlyt is designed as a community-driven platform for advancing perception-driven aerial autonomy.
+
+
+# Quickstart
 
 ## Installation Instructions
 
