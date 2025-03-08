@@ -272,7 +272,7 @@ To fine-tune the **initial pose**, **field of view (FOV)**, and **render resolut
 
 ### **Open the Viewer**
 ```bash
-cd vizflyt_ws/src/
+init_vizflyt
 
 ns-viewer --load-config \
   ./vizflyt_viewer/outputs/washburn-env6-itr0-1fps/washburn-env6-itr0-1fps_nf_format/splatfacto/2025-03-06_201843/config.yml
