@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from __future__ import annotations
 
 import os
@@ -432,13 +433,14 @@ def parse_args():
     parser.add_argument(
         "--save", action="store_true", help="Enable saving images to disk. If not set, images will only be published to ROS2."
     )
-    args = parser.parse_args()
+    # args = parser.parse_args()
+    args, _ = parser.parse_known_args()
 
     return Path(args.config), Path(args.json), args.save, args.aspect_ratio
 
-def main():
+def main(args=None):
     
-    rclpy.init()
+    rclpy.init(args=args)
     config_path, json_path, save_images, aspect_ratio = parse_args()
     config, pipeline, _, _ = eval_setup(config_path, eval_num_rays_per_chunk=None, test_mode="test")
     render_node = RenderViews(config, pipeline, save_images, json_path, aspect_ratio)

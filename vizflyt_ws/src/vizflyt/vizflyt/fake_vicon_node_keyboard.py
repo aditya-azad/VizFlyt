@@ -11,7 +11,7 @@ def normalize_angle(angle):
 
 class TurtleBotTFPublisher(Node):
     def __init__(self):
-        super().__init__('turtlebot_tf_publisher')
+        super().__init__('fake_vicon_node_keyboard')
         
         # Initialize position and orientation
         self.x = 0.0
@@ -89,7 +89,7 @@ class TurtleBotTFPublisher(Node):
         # Broadcast transform
         self.tf_broadcaster.sendTransform(t)
         
-        self.get_logger().info(f'Published TF: x={self.x:.2f}, y={self.y:.2f}, z={self.z:.2f}, roll={math.degrees(self.theta_x):.2f}°, pitch={math.degrees(self.theta_y):.2f}°, yaw={math.degrees(self.theta_z):.2f}°')
+        # self.get_logger().info(f'Published TF: x={self.x:.2f}, y={self.y:.2f}, z={self.z:.2f}, roll={math.degrees(self.theta_x):.2f}°, pitch={math.degrees(self.theta_y):.2f}°, yaw={math.degrees(self.theta_z):.2f}°')
 
 
 def main(args=None):

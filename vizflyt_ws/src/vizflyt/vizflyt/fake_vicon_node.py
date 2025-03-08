@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import rclpy
 import math
 from rclpy.node import Node
@@ -9,8 +11,8 @@ class PositionPublisher(Node):
 
         self.publisher_ = self.create_publisher(Position, '/vicon/VizFlyt/VizFlyt', 10)
 
-        self.radius = 200.0 
-        self.height = 100.0
+        self.radius = 2.0 
+        self.height = 1.0
         self.angular_speed = 0.5 
         self.timer_period = 0.005 
         self.time_elapsed = 0.0  

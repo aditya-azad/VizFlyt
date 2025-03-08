@@ -6,7 +6,7 @@ from tf2_ros import Buffer, TransformListener
 
 class PositionPublisher(Node):
     def __init__(self):
-        super().__init__('fake_vicon_node')
+        super().__init__('fake_vicon_node_hitl')
 
         self.publisher_ = self.create_publisher(Position, '/vicon/VizFlyt/VizFlyt', 10)
         
@@ -36,7 +36,7 @@ class PositionPublisher(Node):
             
             self.publisher_.publish(msg)
             
-            self.get_logger().info(f'Published Position: x={msg.x_trans:.2f}, y={msg.y_trans:.2f}, z={msg.z_trans:.2f}')
+            # self.get_logger().info(f'Published Position: x={msg.x_trans:.2f}, y={msg.y_trans:.2f}, z={msg.z_trans:.2f}')
         except Exception as e:
             self.get_logger().warn(f'Failed to get transform: {e}')
 
