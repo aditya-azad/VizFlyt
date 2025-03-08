@@ -30,13 +30,13 @@
 </div>
 <div align="center">
 
-[Quickstart](#quickstart) ·
-[Project page](https://pear.wpi.edu/research/vizflyt.html)
+[Quickstart](#quickstart-guide) · [Project Page](https://pear.wpi.edu/research/vizflyt.html)
+  
 
 </div>
 
 ---
-# About
+# **About**
 
 <!-- Autonomous aerial robots are rapidly becoming integral to various industries, necessitating hands-on aerial robotics courses to equip the next-generation workforce with practical expertise. A robust and efficient course framework requires a reliable testbed that ensures realistic testing without hardware risks.
 
@@ -188,16 +188,14 @@ chmod +x download_data_and_outputs.sh  # Make script executable
 
 ./download_data_and_outputs.sh  # Run the script to download required data
 ```
-
 ---
 
+### *
 
 
-# **Digital Twin Generation Using Nerfstudio**
+# **Generating a Digital Twin from Your Own Data Using Nerfstudio**
 
 This guide provides step-by-step instructions for generating a high-fidelity **digital twin** using **Nerfstudio**. The workflow covers dataset preprocessing, training, visualization, and exporting an occupancy grid for collision detection.
-
----
 
 ## **1. Initialize the Workspace**
 Ensure your workspace is set up correctly before proceeding:
@@ -238,8 +236,6 @@ ns-viewer --load-config \
   ./vizflyt_viewer/outputs/washburn-env6-itr0-1fps/washburn-env6-itr0-1fps_nf_format/splatfacto/2025-03-06_201843/config.yml
 ```
 
----
-
 ## **5. Export the Occupancy Grid Map for Collision Detection**
 Generate an **occupancy grid map** from the trained digital twin to use for **collision detection** in autonomous navigation:
 
@@ -271,8 +267,6 @@ If the global `ns-*` commands fail for any reason, you can manually execute the 
   python vizflyt_viewer/scripts/exporter.py
   ```
 
----
-
 ## **7. Configure Initial Pose, Camera Settings, and Render Settings**
 To fine-tune the **initial pose**, **field of view (FOV)**, and **render resolution**, follow these steps:
 
@@ -283,6 +277,8 @@ cd vizflyt_ws/src/
 ns-viewer --load-config \
   ./vizflyt_viewer/outputs/washburn-env6-itr0-1fps/washburn-env6-itr0-1fps_nf_format/splatfacto/2025-03-06_201843/config.yml
 ```
+
+![Set Render Settings](assets/photos/vizflyt-set-init-pose-demo.png)
 
 ### **Adjust the Following Settings in the GUI:**
 1. **Set Initial Position & Orientation**  
@@ -297,16 +293,11 @@ ns-viewer --load-config \
 4. **Save Configuration**  
    - Once satisfied, click **"Save Camera Pose"** to save your settings.
 
----
 
 ### **For More Control & Flexibility**
 For advanced usage and fine-grained control over input/output parameters, refer to the official [Splatfacto documentation](https://docs.nerf.studio/nerfology/methods/splat.html#installation).
 
 ---
-
-
-
-#### Running the HITL Framework using ROS2
 
 
 # Planned Features/TODOs
@@ -317,6 +308,8 @@ For advanced usage and fine-grained control over input/output parameters, refer 
 - [ ] Adding multiple sensors (stereo, LiDAR, event cameras, etc.)
 - [ ] Supporting dynamic scenes 
 
+---
+
 # Built On
 
 <a href="https://github.com/nerfstudio-project/nerfstudio">
@@ -325,6 +318,8 @@ For advanced usage and fine-grained control over input/output parameters, refer 
     <img alt="tyro logo" src="https://raw.githubusercontent.com/nerfstudio-project/nerfstudio/main/docs/_static/imgs/logo.png" width="150px" />
 </picture>
 </a>
+
+---
 
 # Citation
 
@@ -343,8 +338,6 @@ If you use this code or find our research useful, please consider citing:
 }
 ```
 
-
-
 # Contributors
 
 <a href="https://github.com/rkulkarni1999">
@@ -357,7 +350,7 @@ If you use this code or find our research useful, please consider citing:
     <img src="https://avatars.githubusercontent.com/u/8917581?v=4" width="60px;" style="border-radius: 50%;"/>
 </a>
 
-\+ [nerfstudio contributors](https://github.com/nerfstudio-project/nerfstudio/graphs/contributors)
+<!-- \+ [nerfstudio contributors](https://github.com/nerfstudio-project/nerfstudio/graphs/contributors) -->
 
 
 
