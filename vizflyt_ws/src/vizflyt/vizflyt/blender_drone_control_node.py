@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import rclpy
 from rclpy.node import Node
 import numpy as np
@@ -19,7 +21,7 @@ class DroneController(Node):
     ROS2-based Autonomous Drone Controller.
     """
     def __init__(self):
-        super().__init__('drone_control_node')
+        super().__init__('blender_drone_control_node')
         
         # Connect to the drone via MAVLink
         self.vehicle = self.init_vehicle()

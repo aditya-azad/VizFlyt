@@ -141,7 +141,7 @@ class Viewer:
         )
 
         self.save_button = self.viser_server.gui.add_button(
-            label="Save Camera Pose"
+            label="Save Render Settings"
         )
         self.save_button.on_click(lambda _: self.save_camera_pose())
         
