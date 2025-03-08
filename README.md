@@ -291,7 +291,7 @@ ns-viewer --load-config \
    - Navigate to the **Render Tab** and adjust the `"Default FOV"` slider.
 
 4. **Save Configuration**  
-   - Once satisfied, click **"Save Camera Pose"** to save your settings.
+   - Once satisfied, click **"Save Render Settings"** to save your settings.
 
 
 ### **For More Control & Flexibility**
