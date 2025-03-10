@@ -349,6 +349,10 @@ If you use this code or find our research useful, please consider citing:
 <a href="https://github.com/vmanoj1996">
     <img src="https://avatars.githubusercontent.com/u/8917581?v=4" width="60px;" style="border-radius: 50%;"/>
 </a>
+<a href="https://github.com/NitinJSanket">
+    <img src="https://avatars.githubusercontent.com/u/12091857?v=4" width="60px;" style="border-radius: 50%;"/>
+</a>
+
 
 <!-- \+ [nerfstudio contributors](https://github.com/nerfstudio-project/nerfstudio/graphs/contributors) -->
 

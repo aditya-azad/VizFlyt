@@ -6,7 +6,8 @@ vizflyt_ws/src/vizflyt_viewer/outputs/
 vizflyt_ws/build/
 vizflyt_ws/install/
 vizflyt_ws/log/
-
+vizflyt_ws/src/quad_simulation/__pycache__
+blender-sim/
 # Ignore specific file types
 *.log
 *.tmp
@@ -20,6 +21,7 @@ Thumbs.db
 __pycache__/
 *.pyc
 *.pyo
+*.blend
 
 # Ignore environment files
 .env
