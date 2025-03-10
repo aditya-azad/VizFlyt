@@ -302,7 +302,6 @@ For advanced usage and fine-grained control over input/output parameters, refer 
 
 # Planned Features/TODOs
 
-- [ ] Integrating with Blender Simulator
 - [ ] Add Hardware Documentation
 - [ ] Release code
 - [ ] Adding multiple sensors (stereo, LiDAR, event cameras, etc.)
