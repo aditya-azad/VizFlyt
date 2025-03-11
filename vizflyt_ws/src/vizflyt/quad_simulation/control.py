@@ -174,7 +174,7 @@ class QuadControl:
         loggedDict = {'control_time': self.timeArray,
                   'control_premix': self.controlArray}
         
-        scipy.io.savemat('quad_simulation/log/control.mat', loggedDict)
+        scipy.io.savemat('vizflyt/quad_simulation/log/control.mat', loggedDict)
 
 
         return U

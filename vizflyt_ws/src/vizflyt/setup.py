@@ -31,7 +31,8 @@ setup(
             'blender_drone_control_node = vizflyt.blender_drone_control_node:main', 
             'render_node = vizflyt.render_node:main',
             'cam_feed_node = vizflyt.cam_feed_node:main',
-            'collision_detection_node = vizflyt.collision_detection_node:main', 
+            'collision_detection_node = vizflyt.collision_detection_node:main',
+            'quad_simulator_node = quad_simulation.quad_simulator_node:main',             
         ],
     },
 )

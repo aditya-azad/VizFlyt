@@ -1,20 +1,16 @@
-"""
-TODO: FIX COORDINATE FRAME ISSUES IN TRAJECTORY 
-"""
 import rclpy
 from rclpy.node import Node
 from geometry_msgs.msg import PoseStamped, TransformStamped
 import numpy as np
 import tf2_ros
-from usercode import StateMachines
-from control import QuadControl
-import quad_dynamics as qd
-import tello
-
+from quad_simulation.usercode import StateMachines
+from quad_simulation.control import QuadControl
+import quad_simulation.quad_dynamics as qd
+import quad_simulation.tello as tello 
 
 class QuadPosePublisher(Node):
     def __init__(self):
-        super().__init__('quad_pose_publisher')
+        super().__init__('quad_simulator_node')
 
         # Pose Publisher
         self.pose_pub = self.create_publisher(PoseStamped, '/drone/pose', 10)
@@ -30,8 +26,8 @@ class QuadPosePublisher(Node):
         self.controller = QuadControl()
         self.user_state_machine = StateMachines()
 
-        # State initialization [x, y, z, vx, vy, vz, qx, qy, qz, qw, p, q, r]
-        self.current_state = np.array([0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 0., 0., 0.])
+        # State initialization        [x,  y,  z, vx, vy, vz, qw, qx, qy, qz,  p,  q,  r ]
+        self.current_state = np.array([0., 0., 0., 0., 0., 0., 1., 0., 0., 0., 0., 0., 0.])
         self.current_time = 0.0
 
         # Setpoint initialization
@@ -51,7 +47,7 @@ class QuadPosePublisher(Node):
         # Create ROS timer
         self.timer = self.create_timer(self.dynamics_dt, self.simulate_step)
 
-        self.get_logger().info("QuadPosePublisher node initialized and running.")
+        self.get_logger().info("Quad Simulator Node initialized and running.")
 
     def simulate_control(self):
         if self.control_timer <= 0.0:
@@ -66,9 +62,9 @@ class QuadPosePublisher(Node):
                 self.current_state[:3],
                 self.current_state[3:6]
             )
-            self.position_SP = np.array([pos_des[0], pos_des[1], pos_des[2], yaw_des])
-            self.velocity_SP = vel_des
-            self.acceleration_SP = acc_des
+            self.position_SP = np.array([pos_des[0], -pos_des[1], -pos_des[2], -yaw_des])
+            self.velocity_SP = np.array([vel_des[0], -vel_des[1], -vel_des[2]])
+            self.acceleration_SP = np.array([acc_des[0], -acc_des[1], -acc_des[2]])
             self.user_timer = self.user_state_machine.dt
         self.user_timer -= self.dynamics_dt
 
@@ -79,27 +75,36 @@ class QuadPosePublisher(Node):
             self.U,
             tello
         )
+        
+        
 
     def publish_pose(self):
+        """
+        publishes poses for state feedback
+        """        
         pose_msg = PoseStamped()
         pose_msg.header.stamp = self.get_clock().now().to_msg()
         pose_msg.header.frame_id = 'map'
 
-        pose_msg.pose.position.x = self.current_state[0]
-        pose_msg.pose.position.y = self.current_state[1]
-        pose_msg.pose.position.z = self.current_state[2]
+        pose_msg.pose.position.x = self.current_state[0] * 0.1
+        pose_msg.pose.position.y = -self.current_state[1] * 0.1
+        pose_msg.pose.position.z = -self.current_state[2] * 0.1
 
-        pose_msg.pose.orientation.x = self.current_state[6]
-        pose_msg.pose.orientation.y = self.current_state[7]
-        pose_msg.pose.orientation.z = self.current_state[8]
-        pose_msg.pose.orientation.w = self.current_state[9]
+        pose_msg.pose.orientation.x = self.current_state[7]
+        pose_msg.pose.orientation.y = -self.current_state[8]
+        pose_msg.pose.orientation.z = -self.current_state[9]
+        pose_msg.pose.orientation.w = self.current_state[6]
 
         self.pose_pub.publish(pose_msg)
 
         # Publish TF transform
         self.publish_tf_transform()
 
+
     def publish_tf_transform(self):
+        """
+        publishes transforms for RVIZ Visualization
+        """
         t = TransformStamped()
 
         # Set timestamp and frame info
@@ -108,15 +113,15 @@ class QuadPosePublisher(Node):
         t.child_frame_id = "drone"     # The drone's frame
 
         # Set translation (position of the drone)
-        t.transform.translation.x = self.current_state[0]
-        t.transform.translation.y = -self.current_state[1]
-        t.transform.translation.z = -self.current_state[2]
+        t.transform.translation.x = self.current_state[0] * 0.1
+        t.transform.translation.y = -self.current_state[1] * 0.1
+        t.transform.translation.z = -self.current_state[2] * 0.1
 
         # Set rotation (orientation of the drone)
-        t.transform.rotation.x = self.current_state[6]
-        t.transform.rotation.y = self.current_state[7]
-        t.transform.rotation.z = self.current_state[8]
-        t.transform.rotation.w = self.current_state[9]
+        t.transform.rotation.x = self.current_state[7]
+        t.transform.rotation.y = -self.current_state[8]
+        t.transform.rotation.z = -self.current_state[9]
+        t.transform.rotation.w = self.current_state[6]
 
         # Publish transform
         self.tf_broadcaster.sendTransform(t)
@@ -134,7 +139,6 @@ class QuadPosePublisher(Node):
         self.current_time += self.dynamics_dt
         self.control_timer -= self.dynamics_dt
         self.user_timer -= self.dynamics_dt
-
 
 def main(args=None):
     rclpy.init(args=args)

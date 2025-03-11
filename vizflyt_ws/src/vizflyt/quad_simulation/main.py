@@ -1,14 +1,9 @@
-import rclpy
-from rclpy.node import Node
-from geometry_msgs.msg import PoseStamped
-
 import numpy as np
 import scipy.io
 from usercode import StateMachines
 from control import QuadControl
 import quad_dynamics as qd
 import tello
-
 
 def main():
     # Simulation Parameters
@@ -20,7 +15,7 @@ def main():
     user_state_machine = StateMachines()
 
     # Initial drone state: [x, y, z, vx, vy, vz, qx, qy, qz, qw, p, q, r]
-    current_state = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0], dtype=np.float64)
+    current_state = np.array([0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0], dtype=np.float64)
 
     # Initialize time variables
     current_time = 0.0
@@ -80,8 +75,8 @@ def main():
 
     
 
-    scipy.io.savemat('quad_simulation/log/drone_pose.mat', logged_data)
-    print("Simulation completed. Results saved to './quad_simulation/log/drone_pose.mat'.")
+    scipy.io.savemat('vizflyt/quad_simulation/log/quadrotor_pose.mat', logged_data)
+    print("Simulation completed. Results saved to './vizflyt/quad_simulation/log/quadrotor_pose.mat'.")
 
 if __name__ == "__main__":
     try:

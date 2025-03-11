@@ -12,7 +12,7 @@ def model_derivative(t, X, U, param):
     inputs:
     X - State
     U - Control inputs 
-    X = [x, y, z, vx, vy, vz, qx, qy, qz, qw, p q r]'
+    X = [x, y, z, vx, vy, vz, qw, qx, qy, qz, p, q, r]'
     U = [u1, u2, u3, u4]'
 
     Center Of Mass (COM) is taken as the reference point on the drone. This formulation will change otherwise

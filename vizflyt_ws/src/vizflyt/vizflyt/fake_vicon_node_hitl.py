@@ -19,13 +19,15 @@ class PositionPublisher(Node):
         
         self.get_logger().info("Fake Vicon Node Initialized, receiving transform data")
 
+        self.mm_to_m = 0.01
+
     def publish_trajectory(self):
         """Obtain position from TF and publish position messages in NWU frame."""
         try:
-            trans = self.tf_buffer.lookup_transform('map', 'turtlebot_base', rclpy.time.Time())
+            trans = self.tf_buffer.lookup_transform('map', 'drone', rclpy.time.Time())
             
             msg = Position()
-            msg.x_trans = trans.transform.translation.x
+            msg.x_trans = trans.transform.translation.x  
             msg.y_trans = trans.transform.translation.y
             msg.z_trans = trans.transform.translation.z
             
