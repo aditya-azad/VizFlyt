@@ -190,9 +190,6 @@ chmod +x download_data_and_outputs.sh  # Make script executable
 ```
 ---
 
-### *
-
-
 # **Generating a Digital Twin from Your Own Data Using Nerfstudio**
 
 This guide provides step-by-step instructions for generating a high-fidelity **digital twin** using **Nerfstudio**. The workflow covers dataset preprocessing, training, visualization, and exporting an occupancy grid for collision detection.
@@ -298,6 +295,10 @@ ns-viewer --load-config \
 For advanced usage and fine-grained control over input/output parameters, refer to the official [Splatfacto documentation](https://docs.nerf.studio/nerfology/methods/splat.html#installation).
 
 ---
+
+# Open-Hardware Documentation
+
+- This guide will help you setup Vicon (for external localization) and an Ardupilot-based Quadrotor that we used as the open-source hardware for conducting our experiments in the paper. 
 
 
 # Planned Features/TODOs

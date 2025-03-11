@@ -1,5 +1,3 @@
-import numpy as np
-
 """
 This script reads a CSV file containing a predefined drone trajectory 
 and executes it. 
@@ -11,6 +9,8 @@ Users can modify this script to:
 
 The drone's movement can be recorded after running the fake Vicon node.
 """
+
+import numpy as np
 
 class StateMachines:
     """

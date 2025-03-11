@@ -27,7 +27,7 @@ def model_derivative(t, X, U, param):
     Equations Of Motion:
         https://in.mathworks.com/help/aeroblks/6dofeulerangles.html
         https://in.mathworks.com/help/aeroblks/6dofquaternion.html
-
+        
     """
 
     # ultra simple motor controller->motor->propeller model

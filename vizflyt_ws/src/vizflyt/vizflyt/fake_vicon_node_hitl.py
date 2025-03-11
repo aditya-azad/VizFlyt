@@ -1,3 +1,7 @@
+"""
+Reads Pose from the 'drone' frame and re-publishes it as 'Position' message which is used by our 
+external localzization setup (Vicon). Hence, this is a fake vicon node that will take Pose from fake 'drone' frame.   
+"""
 import rclpy
 import math
 from rclpy.node import Node
@@ -13,18 +17,14 @@ class PositionPublisher(Node):
         # TF listener to get transformations from RVIZ
         self.tf_buffer = Buffer()
         self.tf_listener = TransformListener(self.tf_buffer, self)
-        
         self.timer_period = 0.005  # 200Hz
-        self.timer = self.create_timer(self.timer_period, self.publish_trajectory)
-        
+        self.timer = self.create_timer(self.timer_period, self.publish_trajectory)        
         self.get_logger().info("Fake Vicon Node Initialized, receiving transform data")
-
-        self.mm_to_m = 0.01
 
     def publish_trajectory(self):
         """Obtain position from TF and publish position messages in NWU frame."""
         try:
-            trans = self.tf_buffer.lookup_transform('map', 'drone', rclpy.time.Time())
+            trans = self.tf_buffer.lookup_transform('map', 'fake_drone', rclpy.time.Time())
             
             msg = Position()
             msg.x_trans = trans.transform.translation.x  
