@@ -68,7 +68,6 @@ Ensure you have the following dependencies installed before proceeding:
 - ✅ **[NVIDIA Drivers](https://www.nvidia.com/en-us/drivers/)** (For GPU acceleration)
 - ✅ **[ROS2 Humble](https://docs.ros.org/en/humble/Installation/Ubuntu-Install-Debs.html)** (Required for ROS-based workflows)
 - ✅ **[Miniconda3](https://www.anaconda.com/docs/getting-started/miniconda/install#macos-linux-installation)** (For managing Python environments)
-- ✅ **[Blender](https://www.blender.org/download/)** _(Optional: Use if testing without hardware)_
 
 ---
 
