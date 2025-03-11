@@ -400,10 +400,13 @@ For advanced usage and fine-grained control over input/output parameters, refer 
 
 - This guide will help you setup Vicon (for external localization) and an Ardupilot-based Quadrotor that we used as the open-source hardware for conducting our experiments in the paper. 
 
+<span style="color:red;">⚠️ TODO</span>
+
 
 # Planned Features/TODOs
 
 - [ ] Add Hardware Documentation
+- [ ] Add Docker Image
 - [ ] Release code
 - [ ] Adding multiple sensors (stereo, LiDAR, event cameras, etc.)
 - [ ] Supporting dynamic scenes 
