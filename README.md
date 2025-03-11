@@ -166,7 +166,7 @@ Once your environment is set up, build the ROS2 workspace:
 
 ```bash
 pip install --upgrade "numpy<2"
-pip install transforms3d gdown
+pip install transforms3d gdown pyquaternion
 
 cd vizflyt_ws/
 
@@ -396,11 +396,35 @@ For advanced usage and fine-grained control over input/output parameters, refer 
 
 ---
 
-# Open-Hardware Documentation
+# **Open-Hardware Documentation**
 
-- This guide will help you setup Vicon (for external localization) and an Ardupilot-based Quadrotor that we used as the open-source hardware for conducting our experiments in the paper. 
+This guide provides step-by-step instructions for setting up **Vicon** (for external localization) and an **Ardupilot-based Quadrotor**, which we used as open-source hardware for our experiments in the paper.
 
-<span style="color:red;">⚠️ TODO</span>
+## **1. Setting Up Your Ardupilot-Based Quadrotor**
+Follow the official **[Ardupilot First-Time Setup Guide](https://ardupilot.org/copter/docs/initial-setup.html)** to configure your drone. The **hardware setup** we used is fully open-source and detailed in our paper under the hardware section.
+
+## **2. Integrating Vicon Positioning with Ardupilot**
+If you have a **Vicon motion capture system**, follow the official **[Ardupilot Vicon Integration Guide](https://ardupilot.org/copter/docs/common-vicon-for-nongps-navigation.html)** to enable non-GPS navigation.
+
+### **Vicon Localization Setup in ROS2**
+To receive real-time localization data from Vicon in **ROS2**, we used the following repository:
+
+🔗 **[Vicon Receiver ROS2](https://github.com/OPT4SMART/ros2-vicon-receiver.git)**
+
+Clone and install it in your **ROS2 workspace** to enable Vicon-based positioning.
+
+## **3. Uploading Ardupilot Parameter File**
+For seamless integration with our **HITL framework**, use our pre-configured **Ardupilot parameter file**.
+
+📌 **Download & Upload Parameters:**
+- **File:** [ICRA_PARAMS](assets/files/icra_params)
+- **Upload via:** **Mission Planner** or **QGroundControl** (GCS software)
+- **Instructions:** Use GCS to load the parameters and apply them to your drone.
+
+By following these steps, you will have a fully functional **HITL-compatible quadrotor** integrated with **Vicon-based localization** and **Ardupilot**.
+
+---
+
 
 
 # Planned Features/TODOs
