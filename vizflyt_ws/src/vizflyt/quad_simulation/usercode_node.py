@@ -2,7 +2,6 @@
 
 import rclpy
 from rclpy.node import Node
-from geometry_msgs.msg import PoseStamped
 from std_msgs.msg import Float32MultiArray
 from sensor_msgs.msg import Image
 from vicon_receiver.msg import Position
@@ -13,7 +12,6 @@ from quad_simulation.Planner import Planner
 from quad_simulation.StudentPerception import StudentPerception
 from quad_simulation.StudentPlanning import StudentMotionPlanning
 from rclpy.qos import QoSProfile, ReliabilityPolicy
-
 
 class StateMachines(Node):
     """
@@ -100,7 +98,6 @@ class StateMachines(Node):
         # Publish the trajectory command
         self.trajectory_pub.publish(msg)
         self.get_logger().info(f"Published Trajectory: {msg.data}")
-
 
 def main():
     """ Main function to run the StateMachines node. """

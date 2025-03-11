@@ -1,3 +1,9 @@
+"""
+This Node is an implementation of the control node that we used on the real drone (PearWhippet160) and controlled using 
+Ardupilot Firmware with an Pixhawk v6 flight controller on-board.  
+
+Might need to change it for your custom setup
+"""
 #!/usr/bin/env python3
 
 import rclpy
@@ -11,6 +17,7 @@ from sensor_msgs.msg import Image
 from geometry_msgs.msg import PoseStamped
 from cv_bridge import CvBridge
 from rclpy.qos import QoSProfile, ReliabilityPolicy
+from vicon_receiver.msg import Position
 
 from Modules.Planner import Planner
 from Modules.StudentPerception import StudentPerception
@@ -26,15 +33,14 @@ class DroneController(Node):
         # Connect to the drone via MAVLink
         self.vehicle = self.init_vehicle()
         
-        # QoS Profile to ensure MAVROS compatibility
+        # QoS Profile
         qos_profile = QoSProfile(
             reliability=ReliabilityPolicy.BEST_EFFORT,  # Avoids reliability mismatch
             depth=10
         )
 
-        # Subscribers
-        self.pose_subscription = self.create_subscription(
-            PoseStamped, '/vizflyt/drone_pose_NED', self.pose_callback, qos_profile
+        self.position_sub = self.create_subscription(
+            Position, '/vicon/VizFlyt/VizFlyt', self.pose_callback, qos_profile
         )
         self.rgb_subscription = self.create_subscription(
             Image, '/vizflyt/rgb_image', self.rgb_callback, qos_profile
@@ -53,15 +59,17 @@ class DroneController(Node):
         self.latest_timestamp = None
         
         # Control loop timer (10 Hz)
-        self.control_timer = self.create_timer(20.0, self.control_loop)
+        self.control_timer = self.create_timer(0.2, self.control_loop)
 
         # Student Solutions
         # Initialize the student modules
-        perception = StudentPerception()
-        motion_planning = StudentMotionPlanning()
-        self.planner = Planner(mode="velocity", perception_module=perception, motion_planning_module=motion_planning)
+        self.perception = StudentPerception()
+        self.motion_planning = StudentMotionPlanning()
+        self.planner = Planner(mode="velocity", perception_module=self.perception, motion_planning_module=self.motion_planning)
 
         self.get_logger().info("Drone Control Node Initialized")
+
+        self.takeoff(0.2)
 
     ######################
     # Dronekit Functions
@@ -99,7 +107,6 @@ class DroneController(Node):
                 self.get_logger().info("Target altitude reached!")
                 break
             time.sleep(1)
-
 
     def send_ned_velocity(self, velocity_x, velocity_y, velocity_z):
         """
@@ -140,7 +147,6 @@ class DroneController(Node):
         self.vehicle.flush()  # **Ensures command execution**
 
 
-
     def condition_yaw(self, heading, relative=False):
         """
         Commands the drone to change its yaw.
@@ -176,73 +182,58 @@ class DroneController(Node):
         """
         return self.vehicle.velocity
 
-    #################
-    # ROS2 Callbacks
-    #################
+    ############
+    # Callbacks
+    ############
     def rgb_callback(self, msg):
-        """Stores the latest RGB image."""
+        """
+        Stores the latest RGB image.
+        """
         self.current_rgb = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
         self.latest_timestamp = msg.header.stamp
 
     def depth_callback(self, msg):
-        """Stores the latest Depth image."""
+        """
+        Stores the latest Depth image.
+        """
         self.current_depth = self.bridge.imgmsg_to_cv2(msg, desired_encoding='passthrough')
 
     def pose_callback(self, msg):
-        """Stores the latest pose."""
-        self.current_pose = msg.pose
-
-    ############################
-    # Drone Command Computation
-    ############################
-    def get_velocities(self, rgb_image, depth_image):
         """
-        Computes velocities (vx, vy, vz, yaw) from RGB and Depth images.
+        Stores the latest pose.
         """
-        vx, vy, vz = 0.5, 0.0, 0.0  # Placeholder values
-        yaw = 0.0
-        return vx, vy, vz, yaw
-
-    def get_waypoints(self, rgb_image, depth_image):
-        """
-        Computes waypoints (px, py, pz, yaw) from RGB and Depth images.
-        """
-        px, py, pz = 2.0, 1.0, -1.5  # Placeholder values
-        yaw = 0.0
-        return px, py, pz, yaw
+        self.current_pose = np.array([msg.x_trans, msg.y_trans, msg.z_trans])
 
     def control_loop(self):
-        """Control loop to move the drone and verify target position reached."""
-
-        self.takeoff()
-        
+        """
+        Control loop to move the drone and verify target position reached.
+        """
         if self.current_rgb is None or self.current_depth is None or self.current_pose is None:
             self.get_logger().info("Waiting for synchronized data...")
             return
 
         # Get new waypoint
-        px, py, pz, yaw = self.get_waypoints(self.current_rgb, self.current_depth)
+        next_waypoint = self.planner.compute_command(self.current_rgb, self.current_depth, self.current_pose)
 
-        # Ensure the drone takes off before moving
-        if self.vehicle.location.global_relative_frame.alt < 9.5:
-            self.get_logger().info("Waiting for takeoff to complete...")
-            return
-
+        # extract target positions
+        px, py, pz = next_waypoint[:3]
+        
+        # convert NWU to NED frame {Ardupilot works in NED Frame}
+        ned_px = px
+        ned_py = -py
+        ned_pz = -pz
+        
         # Send movement command
-        self.get_logger().info(f"Sending movement command to: px={px}, py={py}, pz={pz}, yaw={yaw}")
-        self.goto_position_target_local_ned(px, py, pz)
-        self.condition_yaw(yaw, relative=False)
+        self.get_logger().info(f"Moving to: px={ned_px}, py={ned_py}, pz={ned_pz}")
+        self.goto_position_target_local_ned(ned_px, ned_py, ned_pz)
+        # self.condition_yaw(yaw, relative=False) # if your planning module incorporated yaw
 
         # Wait for drone to reach target
-        while not self.has_reached_target(px, py, pz):
+        while not self.has_reached_target(ned_px, ned_py, ned_pz):
             self.get_logger().info("Moving to target...")
             time.sleep(1)
 
         self.get_logger().info("Target position reached!")
-
-        # Stop the control loop **only after reaching target**
-        self.control_timer.cancel()
-
 
         
     def has_reached_target(self, target_x, target_y, target_z, tolerance=0.2):
@@ -261,10 +252,7 @@ class DroneController(Node):
 
         return dx < tolerance and dy < tolerance and dz < tolerance
 
-
-
 def main():
-    """ Main function """
     rclpy.init()
     node = DroneController()
     rclpy.spin(node)

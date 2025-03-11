@@ -1,19 +1,17 @@
 #!/usr/bin/env python3
 
-"""A drone simulator that takes in trajectory (pos, vel, acc, yaw) from the user, and then publishes Quadrotor's State
-   after going through the simulator
+"""A drone simulator that subscribes to a trajectory (pos, vel, acc, yaw) from the user, runs that trajectory through a 
+quadrotor simulator, and then publishes the current state of the drone. 
 """
 import rclpy
 from rclpy.node import Node
 from geometry_msgs.msg import PoseStamped, TransformStamped
 import numpy as np
 import tf2_ros
-# from quad_simulation.usercode_copy import StateMachines
 from quad_simulation.control import QuadControl
 import quad_simulation.quad_dynamics as qd
 import quad_simulation.tello as tello 
 from std_msgs.msg import Float32MultiArray
-
 
 class QuadSimulator(Node):
     def __init__(self):
@@ -22,7 +20,7 @@ class QuadSimulator(Node):
         # Pose Publisher
         self.pose_pub = self.create_publisher(PoseStamped, '/fake_drone/pose', 10)
 
-        # TF Broadcaster for /tf
+        # Broadcaster for /tf
         self.tf_broadcaster = tf2_ros.TransformBroadcaster(self)
 
         # Subscribe to trajectory setpoints
@@ -51,7 +49,6 @@ class QuadSimulator(Node):
         self.control_timer = 0.0
         self.user_timer = 0.0
         self.control_dt = self.controller.dt
-        # self.user_dt = self.user_state_machine.dt
 
         # Control input initialization
         self.U = np.zeros(4)
@@ -62,7 +59,9 @@ class QuadSimulator(Node):
         self.get_logger().info("Quad Simulator Node initialized and running.")
 
     def trajectory_callback(self, msg):
-        """ Updates the drone's trajectory setpoints from the published trajectory command. """
+        """ 
+        Updates the drone's trajectory setpoints from the published trajectory command. 
+        """
         self.position_SP = np.array([msg.data[0], -msg.data[1], -msg.data[2], -msg.data[9]])
         self.velocity_SP = np.array([msg.data[3], -msg.data[4], -msg.data[5]])
         self.acceleration_SP = np.array([msg.data[6], -msg.data[7], -msg.data[8]])
@@ -70,28 +69,17 @@ class QuadSimulator(Node):
 
     def simulate_control(self):
         """
+        Generates control input
         """
         if self.control_timer <= 0.0:
             self.U = self.controller.step(self.current_state, self.position_SP, self.velocity_SP, self.acceleration_SP)
             self.control_timer = self.controller.dt
         self.control_timer -= self.dynamics_dt
 
-    # def simulate_user_input(self):
-    #     """
-    #     """
-    #     if self.user_timer <= 0.0:
-    #         pos_des, vel_des, acc_des, yaw_des = self.user_state_machine.step(
-    #             self.current_time,
-    #             self.current_state[:3],
-    #             self.current_state[3:6]
-    #         )
-    #         self.position_SP = np.array([pos_des[0], -pos_des[1], -pos_des[2], -yaw_des])
-    #         self.velocity_SP = np.array([vel_des[0], -vel_des[1], -vel_des[2]])
-    #         self.acceleration_SP = np.array([acc_des[0], -acc_des[1], -acc_des[2]])
-    #         self.user_timer = self.user_state_machine.dt
-    #     self.user_timer -= self.dynamics_dt
-
     def simulate_dynamics(self):
+        """
+        Updates State of the quadrotor using physics 
+        """
         self.current_state += self.dynamics_dt * qd.model_derivative(
             self.current_time,
             self.current_state,
@@ -149,8 +137,8 @@ class QuadSimulator(Node):
 
     def simulate_step(self):
         """
+            
         """
-        # self.simulate_user_input()
         self.simulate_control()
         self.simulate_dynamics()
         self.publish_pose()

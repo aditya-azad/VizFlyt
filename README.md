@@ -31,7 +31,7 @@
 <div align="center">
 
 [Quickstart](#quickstart-guide) · [Project Page](https://pear.wpi.edu/research/vizflyt.html)
-  
+
 
 </div>
 
@@ -189,6 +189,102 @@ chmod +x download_data_and_outputs.sh  # Make script executable
 ./download_data_and_outputs.sh  # Run the script to download required data
 ```
 ---
+
+---
+
+## **5. Executing the VizFlyt HITL Workflow**
+
+![vizflyt-architecture](assets/photos/vizflyt-architecture-better.png)
+
+VizFlyt supports both **hardware-in-the-loop (HITL) simulation** and **real-world deployment** for testing autonomous aerial navigation.  
+- If you do not have access to a **Vicon motion capture system** or **drone hardware**, you can use the **simulated drone (`fake_drone`)** and **simulated Vicon (`fake_vicon`)** for testing.  
+- To integrate **custom autonomy algorithms**, edit the `StudentPerception.py` and `StudentPlanning.py` scripts.  
+
+---
+
+### **5.1 Running VizFlyt HITL in Simulation Mode (fake_drone)**
+In this mode, the **Robot** and **Motion Capture** elements are replaced with simulated equivalents.
+
+#### **📌 Steps to Run the Simulation**
+
+1️. **Start the Render Node**  
+   Generates **hallucinated sensor data** using **3D Gaussian Splatting**. This may take a few seconds to initialize.
+   ```bash
+   ros2 run vizflyt render_node
+   ```
+   
+2️. **Enable Collision Detection**  
+   Detects obstacles within the Digital Twin environment. If a collision occurs, the simulation **freezes** and the drone will land.
+   ```bash
+   ros2 run vizflyt collision_detection_node
+   ```
+   
+3️. **Start the Fake Vicon Node**  
+   Simulates motion capture by reading pose data from the `fake_drone` frame and republishing it.
+   ```bash
+   ros2 run vizflyt fake_vicon_node_hitl
+   ```
+
+4️. **Run the Quadrotor Simulator**  
+   - Subscribes to user-defined **trajectories** (position, velocity, acceleration, yaw).  
+   - Runs a **cascaded PID controller**, which can be tuned for custom flight behavior.
+   ```bash
+   ros2 run vizflyt quad_simulator_node
+   ```
+
+5️. **Run the User Code Node**  
+   - Subscribes to **RGB** and **depth images** and Vicon pose.  
+   - Uses the **user-defined perception and motion planning modules** to compute real-time trajectory commands.
+   ```bash
+   ros2 run vizflyt usercode_node
+   ```
+
+6️. **Launch RViz for Visualization**  
+   ```bash
+   rviz2
+   ```
+
+✅ **Expected Outcome:**  
+Once all nodes are running, you should see a **visualization of the simulated drone** and its **planned trajectory**:  
+![vizflyt_quad_demo](assets/photos/vizflyt_quad_demo.gif)
+
+---
+
+### **5.2 Deploying VizFlyt HITL on a Physical Drone**
+If using a real drone with **Vicon motion capture**, follow these steps:
+
+#### **📌 Steps for Real-World Deployment**
+
+1️. **Launch the Vicon Receiver Node**  
+   - Captures real-time **pose updates** from the drone.
+   ```bash
+   ros2 launch vicon_receiver client.launch.py
+   ```
+
+2️. **Start the Render Node**  
+   - Generates hallucinated sensor data from the **Digital Twin**.
+   ```bash
+   ros2 run vizflyt render_node
+   ```
+
+3️. **Enable Collision Detection**  
+   - Stops rendering and triggers a **landing** in case of collision.
+   ```bash
+   ros2 run vizflyt collision_detection_node
+   ```
+
+4️. **Run the Ardupilot Drone Control Node**  
+   - Reads **RGB and depth images** and **Vicon pose**.  
+   - Sends **trajectory commands** to the drone using **pymavlink and DroneKit**.
+   ```bash
+   ros2 run vizflyt ardupilot_drone_control_node
+   ```
+
+✅ **Outcome:** The real drone should now follow the planned **autonomous trajectory** while using the **Digital Twin** for navigation feedback.
+
+---
+
+
 
 # **Generating a Digital Twin from Your Own Data Using Nerfstudio**
 
@@ -355,7 +451,6 @@ If you use this code or find our research useful, please consider citing:
 
 
 <!-- \+ [nerfstudio contributors](https://github.com/nerfstudio-project/nerfstudio/graphs/contributors) -->
-
 
 
 

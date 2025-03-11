@@ -1,3 +1,7 @@
+"""
+Run this node to along with fake_vicon_node_hitl.py and any teleop node of your choosing to move inside the environment
+using a keyboard. Note that this node is not a part of quad simulator node
+"""
 #!/usr/bin/env python3
 
 import rclpy
@@ -60,11 +64,11 @@ class TurtleBotTFPublisher(Node):
         self.theta_z = normalize_angle(self.theta_z)
 
     def publish_transform(self):
-        """ Publishes the transform of the TurtleBot """
+        """ Publishes the transform of the Fake Drone"""
         t = TransformStamped()
         t.header.stamp = self.get_clock().now().to_msg()
         t.header.frame_id = 'map'  # Fixed frame
-        t.child_frame_id = 'turtlebot_base'  # TurtleBot frame
+        t.child_frame_id = 'fake_drone'  # TurtleBot frame
         
         t.transform.translation.x = self.x
         t.transform.translation.y = self.y

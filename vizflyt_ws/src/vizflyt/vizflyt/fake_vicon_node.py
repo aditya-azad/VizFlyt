@@ -1,3 +1,7 @@
+"""
+This is a node purely used for debugging and not part of the framework
+Generate a circular trajectory and publish position messages in NWU frame.
+"""
 #!/usr/bin/env python3
 
 import rclpy
@@ -11,9 +15,9 @@ class PositionPublisher(Node):
 
         self.publisher_ = self.create_publisher(Position, '/vicon/VizFlyt/VizFlyt', 10)
 
-        self.radius = 2.0 
-        self.height = 1.0
-        self.angular_speed = 0.5 
+        self.radius = 0.2 
+        self.height = 0.1
+        self.angular_speed = 0.01 
         self.timer_period = 0.005 
         self.time_elapsed = 0.0  
 
@@ -35,15 +39,6 @@ class PositionPublisher(Node):
         msg.y_rot = self.qy
         msg.z_rot = self.qz
         msg.w = self.qw
-
-        # msg.x_trans = 0.0  
-        # msg.y_trans = 0.0  
-        # msg.z_trans = 0.0
-
-        # msg.x_rot = 0.0
-        # msg.y_rot = 0.0
-        # msg.z_rot = 0.0
-        # msg.w = 1.0
 
         self.publisher_.publish(msg)
 

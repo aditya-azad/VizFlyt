@@ -3,7 +3,6 @@ class Planner:
     Planner class integrating Perception and Motion Planning.
     Generates next trajectory command based on the current pose.
     """
-
     def __init__(self, mode, perception_module, motion_planning_module):
         self.mode = mode
         self.perception = perception_module

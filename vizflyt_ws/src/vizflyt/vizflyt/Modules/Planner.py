@@ -1,31 +1,28 @@
 class Planner:
     """
-    Planner class that integrates student-implemented Perception and Motion Planning logic.
-    Generates either velocity or position commands based on mode.
+    Planner class integrating Perception and Motion Planning.
+    Generates next trajectory command based on the current pose.
     """
-    def __init__(self, mode="velocity", perception_module=None, motion_planning_module=None):
-        """
-        Initializes the Planner.
-        :param mode: "velocity" or "position"
-        :param perception_module: Student-implemented Perception logic
-        :param motion_planning_module: Student-implemented Motion Planning logic
-        """
-        if mode not in ["velocity", "position"]:
-            raise ValueError("Invalid mode. Choose 'velocity' or 'position'.")
-        
+    def __init__(self, mode, perception_module, motion_planning_module):
         self.mode = mode
-        self.perception_module = perception_module
-        self.motion_planning_module = motion_planning_module
+        self.perception = perception_module
+        self.motion_planning = motion_planning_module
 
-    def compute_command(self, rgb_image, depth_image):
+    def compute_command(self, rgb_image, depth_image, current_pose):
         """
-        Calls student-implemented perception and motion planning logic to generate commands.
+        Computes the next target position.
+        Args:
+            rgb_image: RGB input from camera.
+            depth_image: Depth input from camera.
+            current_pose: Current drone position [x, y, z].
+        Returns:
+            New waypoint (x, y, z).
         """
-        # Step 1: Process Images with Perception Module (Student's Code)
-        perception_output = self.perception_module.process_images(rgb_image, depth_image)
 
-        # Step 2: Use Motion Planning Module to Generate Commands
-        if self.mode == "velocity":
-            return self.motion_planning_module.compute_velocity(perception_output)
-        else:
-            return self.motion_planning_module.compute_waypoint(perception_output)
+        # Process images (not used in this example)
+        _ = self.perception.process_images(rgb_image, depth_image)
+
+        # Get the next target position
+        next_waypoint = self.motion_planning.update_target(current_pose)
+
+        return next_waypoint
