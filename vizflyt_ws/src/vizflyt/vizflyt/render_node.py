@@ -199,16 +199,13 @@ class RenderViews(Node):
         """
         
         if not self.render:
-            print(f"RENDERING HAS STOPPED!!")
             return 
         
         if self.current_pose is None:
-            print(f"CURRENT POSE IS NONE")
             return
         
         if self.current_pose is not None:
             
-            # print("\n\n","Current Pose:","\n", self.current_pose)
             # set origin pose if not already set
             if self.origin_pose is None:
                 self.origin_pose = self.current_pose
