@@ -168,7 +168,7 @@ source ~/.bashrc
 #### **Step 3: Initialize VizFlyt in Every New Terminal** 
 Now, every time you open a new terminal, simply run:
 
-📌 Note: Make sure you have a built workspace before executing this (Check the "Building the VizFlyt ROS2 Workspace" section). 
+📌 Note: Please ensure that you have a successfully built ros2 workspace before executing the below. 
 
 ```bash
 init_vizflyt
