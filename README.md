@@ -36,7 +36,7 @@
 </div>
 
 ---
-# **Abstract**
+# **About**
 
 <!-- Autonomous aerial robots are rapidly becoming integral to various industries, necessitating hands-on aerial robotics courses to equip the next-generation workforce with practical expertise. A robust and efficient course framework requires a reliable testbed that ensures realistic testing without hardware risks.
 
@@ -49,7 +49,11 @@ Beyond just a framework, VizFlyt introduces a new open-source and open-hardware 
 
 By leveraging pose from an external localization system, VizFlyt hallucinates onboard visual sensors using 3D Gaussian Splatting, achieving a 100Hz+ update rate for high-fidelity perception and control. This allows for safe and scalable Sim2Real validation, bridging the gap between simulation and real-world deployment. VizFlyt also supports an open-source and open-hardware curriculum for hands-on aerial robotics education. -->
 
-Autonomous aerial robots are becoming increasingly common, driving the need for hands-on courses that equip the next-generation workforce with practical skills. A reliable testbed is essential for such courses to be effective.We introduce **VizFlyt**, an open-source, perception-centric Hardware-In-The-Loop (HITL) photorealistic testing framework designed for aerial robotics education and research. VizFlyt leverages 3D Gaussian Splatting to generate real-time, photorealistic visual sensor data using pose estimates from an external localization system. This approach enables safe and realistic autonomy testing—without the risk of crashes. With a system update rate exceeding 100Hz, VizFlyt offers a robust platform for developing and evaluating autonomy algorithms. Building on our experience in aerial robotics education, we also introduce an open-source and open-hardware curriculum based on VizFlyt to support future courses. We validate VizFlyt through real-world HITL experiments across various course projects, demonstrating its effectiveness and broad applicability.
+Autonomous aerial robots are becoming increasingly common, driving the need for hands-on courses that equip the next-generation workforce with practical skills. A reliable testbed is essential for such courses to be effective.
+
+We introduce **VizFlyt**, an open-source, perception-centric Hardware-In-The-Loop (HITL) photorealistic testing framework designed for aerial robotics education and research. VizFlyt leverages 3D Gaussian Splatting to generate real-time, photorealistic visual sensor data using pose estimates from an external localization system. This approach enables safe and realistic autonomy testing—without the risk of crashes. 
+
+With a system update rate exceeding 100Hz, VizFlyt offers a robust platform for developing and evaluating autonomy algorithms. Building on our experience in aerial robotics education, we also introduce an open-source and open-hardware curriculum based on VizFlyt to support future courses. We validate VizFlyt through real-world HITL experiments across various course projects, demonstrating its effectiveness and broad applicability.
 
 💡 Want to contribute? Whether it's new autonomy algorithms, sensor integrations, or datasets, VizFlyt thrives on community-driven innovation. Join us in advancing aerial robotics research!
 
