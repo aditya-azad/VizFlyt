@@ -124,7 +124,23 @@ pip install -e .
 
 ---
 
-## **2. Making Your Workflow Easier**
+## **2. Building the VizFlyt ROS2 Workspace**
+Once your environment is set up, build the ROS2 workspace:
+
+```bash
+pip install --upgrade "numpy<2"
+pip install transforms3d gdown pyquaternion
+
+cd vizflyt_ws/
+
+colcon build --symlink-install
+```
+
+This ensures all necessary dependencies are installed and the workspace is properly compiled.
+
+---
+
+## **3. Making Your Workflow Easier**
 To simplify your workflow, you can define **aliases** in your `~/.bashrc` file for frequently used commands. These are **optional but recommended**.
 
 📌 Note: This workflow assumes that you have cloned VizFlyt in your home directory ($HOME/VizFlyt/). If your working directory is different, update the paths accordingly in the alias definitions.
@@ -151,6 +167,7 @@ source ~/.bashrc
 
 #### **Step 3: Initialize VizFlyt in Every New Terminal** 
 Now, every time you open a new terminal, simply run:
+
 📌 Note: Make sure you have a built workspace before executing this (Check the "Building the VizFlyt ROS2 Workspace" section). 
 
 ```bash
@@ -165,19 +182,6 @@ This command will:
 
 ---
 
-## **3. Building the VizFlyt ROS2 Workspace**
-Once your environment is set up, build the ROS2 workspace:
-
-```bash
-pip install --upgrade "numpy<2"
-pip install transforms3d gdown pyquaternion
-
-cd vizflyt_ws/
-
-build_ws
-```
-
-This ensures all necessary dependencies are installed and the workspace is properly compiled.
 
 ---
 
