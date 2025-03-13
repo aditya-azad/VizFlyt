@@ -334,9 +334,6 @@ class RenderViews(Node):
         
         return np.array([x,y,z]), np.array([roll, pitch, yaw])
 
-    #########################
-    # Nerfstudio Functions
-    #########################
     def get_camera_state(self, rot_mat, pos):
         """
         Gets the state of the camera
@@ -381,10 +378,7 @@ class RenderViews(Node):
         depth_image = depth_image.cpu().numpy()
         
         return rgb_image, depth_image
-
-    #######################
-    # EXECUTION FUNCTIONS
-    #######################        
+       
     def get_images(self, current_local_position_ned, current_local_orientation_ned):
         """
         Given Position and Orientation, return RGBD Images
