@@ -5,7 +5,7 @@
     <!-- project badges -->
     <a href="https://pear.wpi.edu/research/vizflyt.html"><img src="https://img.shields.io/badge/Project-Page-ffa"/></a>
     <!-- paper badges -->
-    <a href="https://pear.wpi.edu/research/vizflyt.html">
+    <a href="https://arxiv.org/abs/2503.22876"> 
         <img src='https://img.shields.io/badge/arXiv-Page-aff'>
     </a>
 </p>
