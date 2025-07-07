@@ -2,9 +2,9 @@ from splat_render import SplatRenderer
 import numpy as np
 import cv2
 
-parent_dir = "/home/deepak/Deepak/PhD/research/VizFlyt/goddard/goddard_region_2_splat/splatfacto/2025-06-07_160008"
+parent_dir = "/home/azada/code/VizFlyt/goddard/goddard_region_2_splat/splatfacto/2025-06-07_160008"
 config_path = parent_dir + "/config.yml"
-json_path = "/home/deepak/Deepak/PhD/research/VizFlyt/vizflyt_ws/src/vizflyt_viewer/render_settings/render_config.json"
+json_path = "/home/azada/code/VizFlyt/vizflyt_ws/src/vizflyt_viewer/render_settings/render_config.json"
 
 renderer = SplatRenderer(config_path, json_path)
 
